@@ -3,38 +3,40 @@ import React, {useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import {authUser} from "../redux/reducers/authSlice";
 import {useDispatch} from "react-redux";
-import {zodResolver} from "@hookform/resolvers/zod";
-import { z } from 'zod'
-
-const formSchema = z
-    .object({
-        username: z
-            .string()
-            .min(2, { message: 'Имя пользователя слишком короткое' })
-            .max(20, 'Имя пользователя слишком длинное')
-            .transform((v) => v.toLowerCase().replace(/\s+/g, '_')),
-        password: z.string().min(6, 'Пароль слишком короткий'),
-        confirmPassword: z.string().min(6, 'Повторите пароль'),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-        path: ['confirmPassword'],
-        message: 'Введенные пароли не совпадают',
-    })
 
 export default function AuthForm() {
-    const {register,setError, handleSubmit, formState: {errors}} = useForm()
+    const {register,
+        setValue ,
+        setFocus ,
+        watch,
+        handleSubmit,
+        formState: {errors}} = useForm()
+
     const dispatch = useDispatch()
     const [firstEnter , setFirstEnter] = useState(false);
-    const [confirmPass , setConfirmPass] = useState(false)
+    const [isAuth , setIsAuth] = useState(false)
     const authUserFunc = (data)=> {
         dispatch(authUser({user:data , params:'login'}))
         console.log(data)
-        data.userpass===data.confirmPassword ? setConfirmPass(true) : setConfirmPass(false)
         let user =JSON.parse(localStorage.getItem('user'))
         console.log(user)
         user.userlogin === data.userlogin && user.userpass === data.userpass ? setFirstEnter(true) : setFirstEnter(false)
         console.log(firstEnter)
+        if (firstEnter) {
+            localStorage.setItem('user' , JSON.stringify(data))
+        }
+        if(user.confirmPassword) {
+            setIsAuth(true)
+        }
+
     }
+    useEffect(() => {
+        setValue('userpass' , '');
+        setFocus("userpass")
+    }, [firstEnter]);
+
+
+
     return (
         <>
             <form onSubmit={handleSubmit(authUserFunc)}>
@@ -60,15 +62,18 @@ export default function AuthForm() {
                         firstEnter ?
                             <FormControl>
                                 <FormLabel>Пароль</FormLabel>
-                                <Input {...register('confirmPassword' , { required: {
-                                        message:'Обязательное поле',
-                                        value:true
-                                    }})} type='password' size='lg'/>
+                                <Input {...register("confirmPassword", {
+                                    required: true,
+                                    validate: (val)=> {
+                                        if (watch('userpass') != val) {
+                                            return "Пароль не совпадает";
+                                        }
+                                    },
+                                })} type='password' size='lg'/>
                                 <Text>{errors?.confirmPassword?.message}</Text>
                             </FormControl> :
                             ''
                     }
-
                     <Button width='100%' colorScheme='#e4e9eb' size='lg' variant='outline' type='submit' >Войти</Button>
                 </VStack>
             </form>
