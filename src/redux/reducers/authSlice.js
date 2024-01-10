@@ -4,42 +4,33 @@ import axios from 'axios'
 export const authUser = createAsyncThunk(
     'post/authUser',
     async(payload , {rejectWithValue}) => {
-        // try {
-        //     const {user , params} = payload
-        //     // localStorage.setItem('user', JSON.stringify(user))
-        //     const res = await axios.post(`http://localhost:8080/user` , user)
-        //     if (res.status !== 201) {
-        //         throw new Error('error request')
-        //     }
-        //     console.log(res.data)
-        //     return res.data
-        // } catch (error) {
-        //     return rejectWithValue(error.message)
-        // }
+        try {
+
         const {user} = payload
-        fetch(`http://localhost:8080/user/?userlogin=${user.userlogin}`).then((res) => {
-            return res.json();
-        }).then((resp) => {
-            //console.log(resp)
-            if (Object.keys(resp).length === 0) {
-                console.log('Please Enter valid username');
-            } else {
-                if (resp.password === user.userpass) {
-                    console.log.success('Success');
-                }else{
-                    console.log('Please Enter valid credentials');
-                }
+        const res = await axios.get(`http://localhost:8080/user/?userlogin=${user.userlogin}`)
+        if (res.status !== 200) {
+                throw new Error('error request')
             }
-        }).catch((err) => {
-            console.log('Login Failed due to :' + err.message);
-        });
+            console.log(res.data)
+            if (res.data[0]?.userpass === user.userpass && res.data[0]?.userlogin === user.userlogin) {
+                localStorage.removeItem('error')
+                sessionStorage.setItem('isAuth' , true)
+            } else {
+                localStorage.setItem('error' , 'Неправильный логин или пароль')
+            }
+            return res.data
+        } catch (error) {
+            console.log(error)
+            return rejectWithValue(error.message)
+        }
     }
 )
 const initialState = {
     user: null,
     status: 'Idle',
     error : null,
-    token : null
+    token : null,
+    showModal : false
 }
 const authSlice = createSlice({
     name: 'auth',

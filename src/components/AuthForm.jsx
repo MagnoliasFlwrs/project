@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useForm} from "react-hook-form";
 import {authUser} from "../redux/reducers/authSlice";
 import {useDispatch} from "react-redux";
+import Timer from "./Timer";
 
 export default function AuthForm() {
     const {register,
@@ -27,13 +28,21 @@ export default function AuthForm() {
         }
         if(user.confirmPassword) {
             setIsAuth(true)
+            sessionStorage.setItem('isAuth' , true)
         }
 
     }
+    const err =  localStorage.getItem('error');
     useEffect(() => {
         setValue('userpass' , '');
-        setFocus("userpass")
-    }, [firstEnter]);
+        setValue('userlogin' , '');
+        setFocus("userlogin")
+    }, [err]);
+
+    useEffect(() => {
+            setValue('userpass' , '');
+            setFocus("userpass")
+    }, [setFocus ,setValue , firstEnter]);
 
 
 
@@ -76,7 +85,9 @@ export default function AuthForm() {
                     }
                     <Button width='100%' colorScheme='#e4e9eb' size='lg' variant='outline' type='submit' >Войти</Button>
                 </VStack>
+                <Timer/>
             </form>
+
         </>
 
     )

@@ -4,6 +4,11 @@
       "id": "admin",
       "userlogin": "admin",
       "userpass": "admin"
+    },
+    {
+      "id": "admin",
+      "userlogin": "test",
+      "userpass": "test"
     }
   ]
 }

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import {Provider} from "react-redux";
 import store from "./redux/store";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {createBrowserRouter, RouterProvider, useNavigate} from "react-router-dom";
 import MainLayout from "./routes/MainLayout";
 import LoginLayout from "./routes/LoginLayout";
 import {ChakraProvider} from "@chakra-ui/react";
@@ -13,6 +13,7 @@ localStorage.setItem('user' , JSON.stringify({
     userlogin : 'admin',
     userpass : 'admin'
 }))
+
 const router = createBrowserRouter([
     {
         path: '/',
